@@ -1,0 +1,17 @@
+{
+  "name": "SYNTAX_NO-DARA",
+  "description": "Bot WhatsApp basé sur Baileys - Zokou amélioré",
+  "repository": "https://github.com/tombot422/SYNTAX_NO-DARA",
+  "keywords": ["whatsapp", "bot", "baileys", "nodejs"],
+  "env": {
+    "API_KEY": {
+      "description": "Clé API de lolhuman",
+      "value": "9d05ccc5f58e1cf30937"
+    }
+  },
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ]
+}
