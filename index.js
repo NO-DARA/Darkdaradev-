@@ -1,44 +1,31 @@
-// 📁 index.js - Point d'entrée principal du bot SYNTAX_NO-DARA
+const { default: makeWASocket, useSingleFileAuthState, DisconnectReason } = require('@whiskeysockets/baileys');
+const { Boom } = require('@hapi/boom');
+const P = require('pino');
+const fs = require('fs');
 
-require("dotenv").config(); const { default: makeWASocket, useMultiFileAuthState, DisconnectReason, fetchLatestBaileysVersion } = require("@whiskeysockets/baileys"); const { Boom } = require("@hapi/boom"); const fs = require("fs"); const path = require("path"); const commands = require("./commandes/bot-commands"); const config = require("./set");
+const SESSION_FILE = './session.json';
+const { state, saveState } = useSingleFileAuthState(SESSION_FILE);
 
-// 🔐 Chargement de l'authentification async function startBot() { const { state, saveCreds } = await useMultiFileAuthState("session"); const { version } = await fetchLatestBaileysVersion();
+async function startBot() {
+  const sock = makeWASocket({
+    logger: P({ level: 'silent' }),
+    printQRInTerminal: true, // C’est cette ligne qui affiche le QR dans Replit
+    auth: state,
+  });
 
-const sock = makeWASocket({ version, printQRInTerminal: true, auth: state, browser: [config.BOT_NAME, "Chrome", "1.0"], });
+  sock.ev.on('creds.update', saveState);
 
-sock.ev.on("creds.update", saveCreds);
+  sock.ev.on('connection.update', (update) => {
+    const { connection, lastDisconnect } = update;
 
-sock.ev.on("connection.update", (update) => { const { connection, lastDisconnect } = update; if (connection === "close") { const shouldReconnect = (lastDisconnect?.error instanceof Boom) && lastDisconnect.error.output.statusCode !== DisconnectReason.loggedOut; if (shouldReconnect) startBot(); else console.log("📴 Déconnecté définitivement."); } else if (connection === "open") { console.log("✅ SYNTAX_NO-DARA est connecté avec succès."); } });
-
-sock.ev.on("messages.upsert", async ({ messages }) => { const msg = messages[0]; if (!msg.message || msg.key.fromMe) return;
-
-const type = Object.keys(msg.message)[0];
-const body = msg.message[type]?.text || msg.message[type]?.caption || "";
-const commandName = body?.trim().split(" ")[0];
-
-const command = commands[commandName];
-if (!command) return;
-
-// 🔐 Vérification si admin ou owner pour certaines commandes
-const sender = msg.key.participant || msg.key.remoteJid;
-const isGroup = msg.key.remoteJid.endsWith("@g.us");
-const metadata = isGroup ? await sock.groupMetadata(msg.key.remoteJid) : null;
-const isAdmin = isGroup ? metadata.participants.find(p => p.id === sender)?.admin : false;
-const isOwner = sender.includes(config.OWNER_NUMBER);
-
-if (command.ownerOnly && !isOwner) return sock.sendMessage(msg.key.remoteJid, { text: "⛔ Commande réservée au propriétaire." });
-if (command.adminOnly && !isAdmin) return sock.sendMessage(msg.key.remoteJid, { text: "⛔ Commande réservée aux administrateurs." });
-if (command.groupOnly && !isGroup) return sock.sendMessage(msg.key.remoteJid, { text: "⛔ Cette commande ne fonctionne que dans un groupe." });
-
-try {
-  await command.run(sock, msg);
-} catch (e) {
-  console.error("❌ Erreur dans la commande:", e);
-  sock.sendMessage(msg.key.remoteJid, { text: "❌ Une erreur est survenue dans la commande." });
+    if (connection === 'close') {
+      const shouldReconnect = (lastDisconnect.error = Boom)?.output?.statusCode !== DisconnectReason.loggedOut;
+      console.log('🔁 Connexion perdue, reconnexion :', shouldReconnect);
+      if (shouldReconnect) startBot();
+    } else if (connection === 'open') {
+      console.log('✅ Bot connecté avec succès à WhatsApp !');
+    }
+  });
 }
 
-}); }
-
 startBot();
-
-                                   
