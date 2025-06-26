@@ -1,102 +1,102 @@
-# ꧁𓆩 SYNTAX_NO-DARA 𓆪꧂ — Bot WhatsApp
+# ꧁𓆩𝙎𝙔𝙉𝙏𝘼𝙓_NO-DARA𓆪꧂ — Bot WhatsApp Multifonction
 
-> Version inspirée et améliorée de **Zokou-MD**  
-> Développé par **NO-LIMITE** & **NO-DARA**
+SYNTAX_NO-DARA est un bot WhatsApp puissant, basé sur Baileys, inspiré de Zokou-MD, avec une grande variété de commandes utiles, fun et avancées. Il supporte la connexion par **QR Code (session 1)** et **Pair Code (session 2)**.
 
 ---
 
-## ✨ Fonctionnalités Principales
+## ⚙️ Fonctionnalités principales
 
-### 📥 Téléchargement de Fichiers
-SYNTAX_NO-DARA peut télécharger des fichiers **audio** et **vidéo** à partir de liens YouTube ou autres plateformes compatibles. Partagez-les facilement avec vos contacts.
+### 📥 Téléchargement de fichiers
+- Vue unique `.voir`
+- Lien URL `.url`
+- Pinterest `.pint`
+- Audio/vidéo via lien
 
-### 🖼️ Exportation de Stickers
-Importez vos stickers **Telegram** directement sur **WhatsApp** en les envoyant au bot.  
-Utilise l’API [api.lolhuman.xyz](https://api.lolhuman.xyz) — Clé API offerte :
+### 📚 Recherche & Infos
+- `.recherche` : Recherche Google
+- `.repo` : Affiche le repo GitHub du bot
+- `.rank` : Affiche ton profil utilisateur
+
+### 📂 Texte & Style
+- `.style` : Texte stylisé
+- `.annonce` : Texte mentionné à tous
+
 ### 👥 Gestion de Groupe
-- Ajouter / Retirer des membres
-- Modifier la description ou le nom du groupe
-- Activer ou désactiver les messages groupés
-- Mettre des règles personnalisées
+- `.kickall` : Expulse tous sauf les admins
+- `.tag`, `.tagall` : Mention ciblée ou tous
+- `.promote`, `.demote` : Gère les rôles
+- `.welcome` : Message d’accueil automatique
+- `.changerphoto` : Change la photo du bot
 
-### 🎨 Texte vers Image (Logos)
-Transformez votre texte en images stylisées.  
-Une collection de logos stylés a été intégrée pour votre confort.
+### 🔐 Protection
+- `.anti-spam` : Active/désactive anti-spam
+- `.signaler` : Signale un membre du groupe
 
----
-
-## 🎮 Fonctionnalités Ludiques
-
-### 😂 Blagues & Devinettes
-Zokou peut raconter des blagues, des devinettes, ou même des citations amusantes pour détendre l’ambiance.
-
-### 💬 Citations Inspirantes
-Recevez des **citations puissantes** et motivantes automatiquement ou à la demande.
+### 🔁 Divers
+- `.spam` : Spam WhatsApp (usage contrôlé)
+- `.restore` : Simule une restauration de compte
+- `.réactions` : GIFs (heureux, encolère, giflé...)
+- `.hentail`, `.hentailvideo` 🔞
 
 ---
 
-## 🧠 Obtenir SYNTAX_NO-DARA
+## 🚀 Obtenir SYNTAX_NO-DARA
 
-- Cliquez sur **Fork** pour copier ce dépôt sur votre propre compte GitHub
-- N’oubliez pas de laisser une ⭐ pour soutenir le projet !
+### Session-1 (QR Code)
+- 🔗 [Générer une session QR Code](https://syntax-no-dara-qr.onrender.com)
 
-### 🔐 Sessions disponibles
-- **Session 1** : à scanner depuis Replit ou Glitch
-- **Session 2** : hébergée via un service secondaire NO-LIMITE
+### Session-2 (Pair Code)
+- 🔗 [Générer une session Pair Code](https://syntax-no-dara-paircode.onrender.com)
 
----
-
-## ☁️ Déploiement
-
-### 🚀 Heroku
-Si vous n’avez pas encore de compte Heroku :  
-👉 [Créer un compte Heroku](https://signup.heroku.com/)
-
-**Déployer sur Heroku :**  
-👉 [Déployer sur Heroku](#)
+> ⚠️ Copie bien ta session ID dans `.env` après génération !
 
 ---
 
-### ☁️ Koyeb
-Si vous n’avez pas encore de compte Koyeb :  
-👉 [Créer un compte Koyeb](https://app.koyeb.com/)
+## 🔧 Déploiement
 
-**Déployer sur Koyeb :**  
-👉 [Déployer sur Koyeb](#)
+### Heroku
+- [Créer un compte Heroku](https://signup.heroku.com/)
+- [🚀 Déployer sur Heroku](https://heroku.com/deploy?template=https://github.com/votrecompte/syntax-no-dara)
 
----
+### Railway
+- [Créer un compte Railway](https://railway.app/)
+- [🚀 Déployer sur Railway](https://railway.app/new/template)
 
-## 🤝 Contributions
-
-Les contributions sont **les bienvenues** !  
-Si tu veux :
-- Proposer de nouvelles commandes
-- Ajouter des API (GPT, DALL·E, etc.)
-- Corriger des bugs
-
-👉 Crée une *Issue* ou un *Pull Request* dans ce dépôt.
+### Koyeb
+- [Créer un compte Koyeb](https://app.koyeb.com/)
+- [🚀 Déployer sur Koyeb](https://app.koyeb.com/deploy)
 
 ---
 
-## 🙏 Remerciements
+## 🧪 Exemple `.env`
 
-- **NO-DARA** → Ajout de commandes intelligentes (Fancy, GPT, DALL·E, APK)
-- **NO-LIMITE** → Hébergement de sessions secondaires + site d’administration
+```env
+OWNER_NUMBER=243890000000
+BOT_NAME=SYNTAX_NO-DARA
+SESSION_ID=ta_session_ici
+LOLHUMAN_API_KEY=9d05ccc5f58e1cf30937
+REPO_LINK=https://github.com/votrecompte/syntax-no-dara
+ANTI_SPAM=true
+WELCOME_MSG=Bienvenue @user dans @group
+```
+
+---
+
+## 🤝 Contributions Bienvenues !
+
+Si tu veux ajouter une commande, corriger un bug ou améliorer le bot :
+- Fork le repo
+- Fais tes modifications
+- Envoie un pull request 💡
+
+### Remerciements :
+- **NO-DARA** : Fondateur / Dev commandes avancées
+- **NO-LIMITE** : Gestion des sessions web et GitHub
 
 ---
 
 ## 📜 Licence
 
-Le bot WhatsApp **SYNTAX_NO-DARA** est distribué sous licence **MIT**.  
-Utilisation, modification et redistribution sont autorisées 🔓
+Distribué sous **MIT** — utilisez, modifiez, partagez librement ✨
 
----
-
-## 👑 Développeurs
-
-- 👨‍💻 NO-LIMITE
-- 👨‍💻 NO-DARA
-
----
-
-> Profitez des fonctionnalités variées du bot WhatsApp  SYNTAX_NO-DARA pour améliorer vos conversations et rendre votre expérience plus stylée !
+Profitez de **SYNTAX_NO-DARA** pour enrichir vos conversations WhatsApp !
