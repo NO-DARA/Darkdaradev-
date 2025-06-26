@@ -1,86 +1,44 @@
-const { default: makeWASocket, useMultiFileAuthState, DisconnectReason, makeCacheableSignalKeyStore } = require("@whiskeysockets/baileys");
-const P = require("pino");
-const fs = require("fs");
-const figlet = require("figlet");
-const chalk = require("chalk");
+// 📁 index.js - Point d'entrée principal du bot SYNTAX_NO-DARA
 
-console.log(chalk.cyan(figlet.textSync("SYNTAX_NO-DARA", { horizontalLayout: "default" })));
+require("dotenv").config(); const { default: makeWASocket, useMultiFileAuthState, DisconnectReason, fetchLatestBaileysVersion } = require("@whiskeysockets/baileys"); const { Boom } = require("@hapi/boom"); const fs = require("fs"); const path = require("path"); const commands = require("./commandes/bot-commands"); const config = require("./set");
 
-async function startBot() {
-  const { state, saveCreds } = await useMultiFileAuthState('auth_info');
-  const sock = makeWASocket({
-    logger: P({ level: "silent" }),
-    printQRInTerminal: true,
-    auth: {
-      creds: state.creds,
-      keys: makeCacheableSignalKeyStore(state.keys, P({ level: "silent" }))
-    },
-    browser: ["SYNTAX_NO-DARA", "Chrome", "106.0.0.0"]
-  });
+// 🔐 Chargement de l'authentification async function startBot() { const { state, saveCreds } = await useMultiFileAuthState("session"); const { version } = await fetchLatestBaileysVersion();
 
-  sock.ev.on("creds.update", saveCreds);
+const sock = makeWASocket({ version, printQRInTerminal: true, auth: state, browser: [config.BOT_NAME, "Chrome", "1.0"], });
 
-  sock.ev.on("connection.update", ({ connection, lastDisconnect }) => {
-    if (connection === "open") {
-      console.log(chalk.green("✅ SYNTAX_NO-DARA connecté avec succès à WhatsApp !"));
-    } else if (connection === "close") {
-      const code = lastDisconnect?.error?.output?.statusCode;
-      if (code !== DisconnectReason.loggedOut) {
-        console.log(chalk.yellow("🔁 Reconnexion en cours..."));
-        startBot();
-      } else {
-        console.log(chalk.red("❌ Déconnecté. Veuillez relancer le bot."));
-      }
-    }
-  });
+sock.ev.on("creds.update", saveCreds);
 
-  sock.ev.on("messages.upsert", async ({ messages, type }) => {
-    const msg = messages[0];
-    if (!msg.message || msg.key.fromMe) return;
+sock.ev.on("connection.update", (update) => { const { connection, lastDisconnect } = update; if (connection === "close") { const shouldReconnect = (lastDisconnect?.error instanceof Boom) && lastDisconnect.error.output.statusCode !== DisconnectReason.loggedOut; if (shouldReconnect) startBot(); else console.log("📴 Déconnecté définitivement."); } else if (connection === "open") { console.log("✅ SYNTAX_NO-DARA est connecté avec succès."); } });
 
-    const sender = msg.key.remoteJid;
-    const messageType = Object.keys(msg.message)[0];
-    const text = msg.message.conversation || msg.message.extendedTextMessage?.text || "";
+sock.ev.on("messages.upsert", async ({ messages }) => { const msg = messages[0]; if (!msg.message || msg.key.fromMe) return;
 
-    console.log(`📩 Message reçu de ${sender}: ${text}`);
+const type = Object.keys(msg.message)[0];
+const body = msg.message[type]?.text || msg.message[type]?.caption || "";
+const commandName = body?.trim().split(" ")[0];
 
-    if (text === ".salam") {
-      await sock.sendMessage(sender, { text: "Wa 3alaykoum salam mon frère 👊" });
-    } else if (text === ".menu") {
-      await sock.sendMessage(sender, {
-        text: `
-╔═══📜 MENU SYNTAX_NO-DARA 📜═══╗
-║ .salam   → Salutation
-║ .menu    → Afficher ce menu
-║ .owner   → Info sur le créateur
-╚══════════════════════════════╝
-        `.trim()
-      });
-    } else if (text === ".owner") {
-      await sock.sendMessage(sender, {
-        text: `👑 Ce bot appartient à TomBot422 alias SYNTAX_NO-DARA.`
-      });
-    }
-  });
+const command = commands[commandName];
+if (!command) return;
+
+// 🔐 Vérification si admin ou owner pour certaines commandes
+const sender = msg.key.participant || msg.key.remoteJid;
+const isGroup = msg.key.remoteJid.endsWith("@g.us");
+const metadata = isGroup ? await sock.groupMetadata(msg.key.remoteJid) : null;
+const isAdmin = isGroup ? metadata.participants.find(p => p.id === sender)?.admin : false;
+const isOwner = sender.includes(config.OWNER_NUMBER);
+
+if (command.ownerOnly && !isOwner) return sock.sendMessage(msg.key.remoteJid, { text: "⛔ Commande réservée au propriétaire." });
+if (command.adminOnly && !isAdmin) return sock.sendMessage(msg.key.remoteJid, { text: "⛔ Commande réservée aux administrateurs." });
+if (command.groupOnly && !isGroup) return sock.sendMessage(msg.key.remoteJid, { text: "⛔ Cette commande ne fonctionne que dans un groupe." });
+
+try {
+  await command.run(sock, msg);
+} catch (e) {
+  console.error("❌ Erreur dans la commande:", e);
+  sock.sendMessage(msg.key.remoteJid, { text: "❌ Une erreur est survenue dans la commande." });
 }
 
+}); }
+
 startBot();
-sock.ev.on("group-participants.update", async (update) => {
-  try {
-    const metadata = await sock.groupMetadata(update.id);
-    for (const participant of update.participants) {
-      if (update.action === "add") {
-        const pp = await sock.profilePictureUrl(participant, "image").catch(() => "https://i.ibb.co/3N1jYkR/welcome.jpg");
-        const name = participant.split("@")[0];
-        const text = `👋 Bienvenue @${name} dans *${metadata.subject}* !`;
-        await sock.sendMessage(update.id, {
-          image: { url: pp },
-          caption: text,
-          mentions: [participant]
-        });
-      }
-    }
-  } catch (e) {
-    console.log("Erreur welcome:", e);
-  }
-});
+
+                                   
