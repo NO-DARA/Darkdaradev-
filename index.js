@@ -65,3 +65,22 @@ async function startBot() {
 }
 
 startBot();
+sock.ev.on("group-participants.update", async (update) => {
+  try {
+    const metadata = await sock.groupMetadata(update.id);
+    for (const participant of update.participants) {
+      if (update.action === "add") {
+        const pp = await sock.profilePictureUrl(participant, "image").catch(() => "https://i.ibb.co/3N1jYkR/welcome.jpg");
+        const name = participant.split("@")[0];
+        const text = `👋 Bienvenue @${name} dans *${metadata.subject}* !`;
+        await sock.sendMessage(update.id, {
+          image: { url: pp },
+          caption: text,
+          mentions: [participant]
+        });
+      }
+    }
+  } catch (e) {
+    console.log("Erreur welcome:", e);
+  }
+});
