@@ -3,27 +3,36 @@ const { Boom } = require('@hapi/boom');
 const P = require('pino');
 const fs = require('fs');
 
-const SESSION_FILE = './session.json';
-const { state, saveState } = useSingleFileAuthState(SESSION_FILE);
+// Authentification via fichier session
+const { state, saveState } = useSingleFileAuthState('./session.json');
 
 async function startBot() {
   const sock = makeWASocket({
     logger: P({ level: 'silent' }),
-    printQRInTerminal: true, // C’est cette ligne qui affiche le QR dans Replit
-    auth: state,
+    printQRInTerminal: true, // Affiche le QR dans Replit
+    auth: state
   });
 
   sock.ev.on('creds.update', saveState);
 
   sock.ev.on('connection.update', (update) => {
     const { connection, lastDisconnect } = update;
-
     if (connection === 'close') {
-      const shouldReconnect = (lastDisconnect.error = Boom)?.output?.statusCode !== DisconnectReason.loggedOut;
-      console.log('🔁 Connexion perdue, reconnexion :', shouldReconnect);
+      const shouldReconnect = new Boom(lastDisconnect?.error)?.output?.statusCode !== DisconnectReason.loggedOut;
+      console.log("⛔ Connexion perdue. Reconnexion :", shouldReconnect);
       if (shouldReconnect) startBot();
     } else if (connection === 'open') {
-      console.log('✅ Bot connecté avec succès à WhatsApp !');
+      console.log("✅ Bot connecté à WhatsApp !");
+    }
+  });
+
+  sock.ev.on('messages.upsert', async (msgUpdate) => {
+    const msg = msgUpdate.messages[0];
+    if (!msg.message || msg.key.fromMe) return;
+    
+    const messageContent = msg.message.conversation || msg.message.extendedTextMessage?.text || "";
+    if (messageContent.toLowerCase() === "ping") {
+      await sock.sendMessage(msg.key.remoteJid, { text: "pong 🏓" }, { quoted: msg });
     }
   });
 }
